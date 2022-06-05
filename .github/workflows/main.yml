@@ -24,11 +24,11 @@ jobs:
         env:
           ICETRACKER_SHRIMPY_API_KEY: ${{ secrets.ShrimpyApiKey }}
           ICETRACKER_SHRIMPY_API_SECRET: ${{ secrets.ShrimpyApiSecret }}
-          ICETRACKER_TARGET_BALANCE: "250"
-          ICETRACKER_REFILL_LEVEL: "8"
-          ICETRACKER_TAKEPROFIT_LEVEL: "30"
-          ICETRACKER_IGNORED_ACCOUNTS: ""
-          ICETRACKER_IGNORED_SYMBOLS: "USDT,BTC"
+          ICETRACKER_TARGET_BALANCE: ${{ secrets.TargetBalance }}
+          ICETRACKER_REFILL_LEVEL: ${{ secrets.RefillPercent }}
+          ICETRACKER_TAKEPROFIT_LEVEL: ${{ secrets.TakeprofitPercent }}
+          ICETRACKER_IGNORED_ACCOUNTS: ${{ secrets.IgnoredAccounts }}
+          ICETRACKER_IGNORED_SYMBOLS: ${{ secrets.IgnoredSymbols }}
       - name: Check if there are required actions
         id: check_files
         uses: andstor/file-existence-action@v1
