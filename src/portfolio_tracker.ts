@@ -1,14 +1,14 @@
 import {ShrimpyApi} from "./shrimpy/api";
-import {sleep} from "./utils";
+import {getenv, sleep} from "./utils";
 import fs from 'fs'
 
-const publicKey = process.env.ICETRACKER_SHRIMPY_API_KEY ?? '';
-const privateKey = process.env.ICETRACKER_SHRIMPY_API_SECRET ?? '';
-const targetBalance = +(process.env.ICETRACKER_TARGET_BALANCE ?? 250);
-const refillLevel = +(process.env.ICETRACKER_REFILL_LEVEL ?? 5)/100.0;
-const takeProfitLevel = +(process.env.ICETRACKER_TAKEPROFIT_LEVEL ?? 5)/100.0;
-const ignoredIds = (process.env.ICETRACKER_IGNORED_ACCOUNTS ?? '').split(",");
-const ignoredSymbols = (process.env.ICETRACKER_IGNORED_SYMBOLS ?? 'USDT,BTC').split(",");
+const publicKey = getenv('ICETRACKER_SHRIMPY_API_KEY', '')
+const privateKey = getenv('ICETRACKER_SHRIMPY_API_SECRET', '');
+const targetBalance = +(getenv('ICETRACKER_TARGET_BALANCE', '250'));
+const refillLevel = +(getenv('ICETRACKER_REFILL_LEVEL', '8'))/100.0;
+const takeProfitLevel = +(getenv('ICETRACKER_TAKEPROFIT_LEVEL', '30'))/100.0;
+const ignoredIds = (getenv('ICETRACKER_IGNORED_ACCOUNTS', '')).split(",");
+const ignoredSymbols = getenv('ICETRACKER_IGNORED_SYMBOLS', 'USDT,BTC').split(",");
 const api = new ShrimpyApi(publicKey, privateKey);
 
 
