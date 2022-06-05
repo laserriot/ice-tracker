@@ -26,58 +26,70 @@ function processPortfolio(accountId: string, portfolios: ShrimpyBalances): Portf
     };
 }
 
+async function loadPortfolios(accounts: ShrimpyAccount[]) {
+    let portfolios: Portfolio[] = []
+    for (const account of accounts) {
+        try {
+            await sleep(50); // helps with Shrimpy API request limits
+            await api.getBalances(account.id)
+                .then((balances) => {
+                    let p = processPortfolio(account.id, balances)
+                    portfolios.push(p)
+                    process.stdout.write(".")
+                }, err => {
+                    console.error(err);
+                })
+        } catch (err) {
+            console.log(err)
+        }
+    }
+    return portfolios;
+}
+
+function findRequiredActions(filteredPortfolios: Portfolio[]) {
+    let actions: string[] = []
+    for (const portfolio of filteredPortfolios.sort((a, b) => b.usdValue - a.usdValue)) {
+        let ratio = portfolio.usdValue / targetBalance - 1;
+        let portfolioLine = `(id:${portfolio.id}) ${portfolio.symbol}: ${(ratio * 100).toFixed(2)}%`;
+
+        if (ratio < -refillLevel) {
+            actions.push(`REFILL ${portfolioLine}`)
+        } else if (ratio > takeProfitLevel) {
+            actions.push(`TAKE PROFIT ${portfolioLine}`)
+        } else {
+            console.log(`NO ACTION: ${portfolioLine}`)
+        }
+    }
+    return actions;
+}
+
+function saveActionsToFile(actions: string[]) {
+    console.log(`ACTIONS:`)
+    const actionsFile = fs.openSync('actions.txt', 'w')
+    for (const action of actions) {
+        console.log(action)
+        fs.appendFileSync(actionsFile, `${action}\n`)
+    }
+    fs.closeSync(actionsFile)
+}
+
 (async () => {
-    let promise = api.getAccounts();
-    promise
+    api.getAccounts()
         .then(async accounts => {
             console.log(`Checking ${accounts.length} accounts`);
-            let portfolios: Portfolio[] = []
-            for (const account of accounts) {
-                try {
-                    await sleep(50); // helps with Shrimpy API request limits
-                    await api.getBalances(account.id)
-                        .then((balances) => {
-                                let p = processPortfolio(account.id, balances)
-                                portfolios.push(p)
-                                process.stdout.write(".")
-                            }, err => {
-                                console.error(err);
-                            })
-                } catch (err) {
-                    console.log(err)
-                }
-            }
+            let portfolios = await loadPortfolios(accounts);
 
             console.log("Finished")
             const filteredPortfolios = portfolios
                 .filter(p => !ignoredSymbols.includes(p.symbol))
                 .filter(p => !ignoredIds.includes(p.id.toString()))
-            let actions: string[] = []
-            for (const portfolio of filteredPortfolios.sort((a, b) => b.usdValue - a.usdValue)) {
-                let ratio = portfolio.usdValue / targetBalance - 1;
-                let portfolioLine = `(id:${portfolio.id}) ${portfolio.symbol}: ${(ratio * 100).toFixed(2)}%`;
-
-                if (ratio < -refillLevel) {
-                    actions.push(`REFILL ${portfolioLine}`)
-                }
-                else if (ratio > takeProfitLevel) {
-                    actions.push(`TAKE PROFIT ${portfolioLine}`)
-                } else {
-                    console.log(`NO ACTION: ${portfolioLine}`)
-                }
-            }
+            let actions = findRequiredActions(filteredPortfolios);
 
             if (actions.length <= 0) {
                 return;
             }
 
-            console.log(`ACTIONS:`)
-            const actionsFile = fs.openSync('actions.txt', 'w')
-            for (const action of actions) {
-                console.log(action)
-                fs.appendFileSync(actionsFile, `${action}\n`)
-            }
-            fs.closeSync(actionsFile)
+            saveActionsToFile(actions);
         }, err => {
             console.error(err);
         })
