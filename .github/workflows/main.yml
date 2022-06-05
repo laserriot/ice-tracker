@@ -1,0 +1,49 @@
+name: Ice-Tracker Notification
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [16.x]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run start
+        env:
+          ICETRACKER_SHRIMPY_API_KEY: ${{ secrets.ShrimpyApiKey }}
+          ICETRACKER_SHRIMPY_API_SECRET: ${{ secrets.ShrimpyApiSecret }}
+          ICETRACKER_TARGET_BALANCE: "250"
+          ICETRACKER_REFILL_LEVEL: "8"
+          ICETRACKER_TAKEPROFIT_LEVEL: "30"
+          ICETRACKER_IGNORED_ACCOUNTS: ""
+          ICETRACKER_IGNORED_SYMBOLS: "USDT,BTC"
+      - name: Check if there are required actions
+        id: check_files
+        uses: andstor/file-existence-action@v1
+        with:
+          files: "actions.txt"
+      - name: Read required actions
+        if: steps.check_files.outputs.files_exists == 'true'
+        id: actions
+        uses: juliangruber/read-file-action@v1
+        with:
+          path: ./actions.txt
+      - name: Send email
+        if: steps.check_files.outputs.files_exists == 'true'
+        uses: cinotify/github-action@main
+        with:
+          to: ${{ secrets.NotificationEmail }}
+          subject: 'Ice Tracker: Action required'
+          body: ${{ steps.actions.outputs.content }}
