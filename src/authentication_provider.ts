@@ -2,7 +2,7 @@
 
 export class ShrimpyAuthenticationProvider {
 
-    public readonly _publicKey: string;
+    public readonly publicKey: string;
     private readonly _privateKey: Buffer;
 
     constructor(
@@ -16,16 +16,12 @@ export class ShrimpyAuthenticationProvider {
             throw 'Empty api secret';
         }
 
-        this._publicKey = publicKey;
-        // decode the base64 secret
+        this.publicKey = publicKey;
         this._privateKey = Buffer.from(privateKey, 'base64');
     }
 
-    public sign(prehashString: string): string {
-        // create a sha256 hmac with the secret
+    public createSignature(authString: string): string {
         const hmac = crypto.createHmac('sha256', this._privateKey);
-
-        // hash the prehash string and base64 encode the result
-        return hmac.update(prehashString).digest('base64');
+        return hmac.update(authString).digest('base64');
     }
 }

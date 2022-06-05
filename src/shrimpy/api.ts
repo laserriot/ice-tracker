@@ -22,11 +22,11 @@ export class ShrimpyApi {
     private async get<T>(path: string): Promise<T> {
         const nonce = Date.now();
         const method = 'GET';
-        const prehashString = path + method + nonce + "";
-        const signature = this._authenticationProvider.sign(prehashString)
+        const authString = path + method + nonce + "";
+        const signature = this._authenticationProvider.createSignature(authString)
         const options = {
             headers: {
-                'SHRIMPY-API-KEY': `${this._authenticationProvider._publicKey}`,
+                'SHRIMPY-API-KEY': `${this._authenticationProvider.publicKey}`,
                 'SHRIMPY-API-NONCE': `${nonce}`,
                 'SHRIMPY-API-SIGNATURE': `${signature}`,
             }
