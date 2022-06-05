@@ -1,0 +1,3 @@
+interface ShrimpyAccount {
+    id: string;
+}
