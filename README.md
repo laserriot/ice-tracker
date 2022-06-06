@@ -32,14 +32,15 @@ Refill level (in %).
 -
 default: USDT,BTC
 
-Ignores single BTC/USDT single coin portfolios by default ("default" portfolios). 
+Ignores only BTC or only USDT single coin portfolios by default ("default" portfolios). 
 
 (optional) IgnoredAccounts
 -
 default: none
 
 format: comma separated list of ids
-If you don't want to track certain portfolios you can provide ids to disable them from notifications (the id is in the notification e-mail)
+
+If you don't want to track certain portfolios you can provide the list of ids to disable them from notifications (the id is in the notification e-mail)
 
 (optional) PortfolioTargetBalanceOverride
 - 

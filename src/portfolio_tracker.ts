@@ -59,7 +59,7 @@ function findRequiredActions(filteredPortfolios: Portfolio[]) {
     for (const portfolio of filteredPortfolios.sort((a, b) => b.usdValue - a.usdValue)) {
         let targetBalance = portfolioValueOverrideUsdMap[portfolio.id] ?? globalTargetBalance;
         let ratio = portfolio.usdValue / targetBalance - 1;
-        let portfolioLine = `(id:${portfolio.id}) ${portfolio.symbol}: ${(ratio * 100).toFixed(2)}% to target: ${targetBalance}`;
+        let portfolioLine = `(id:${portfolio.id}) ${portfolio.symbol}: ${(ratio * 100).toFixed(2)}%. Target: $${targetBalance.toFixed(2)}`;
 
         if (ratio < -refillLevel) {
             actions.push(`REFILL ${portfolioLine}`)
@@ -78,7 +78,10 @@ function saveActionsToFile(actions: string[]) {
     for (const action of actions) {
         console.log(action)
         fs.appendFileSync(actionsFile, `${action}\n`)
+
     }
+    const footer = Buffer.from(fs.readFileSync('footer.txt').toString(), 'base64');
+    fs.appendFileSync(actionsFile, `\n\n${footer.toString('utf8')}\n`)
     fs.closeSync(actionsFile)
 }
 
