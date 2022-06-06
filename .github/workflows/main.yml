@@ -32,6 +32,7 @@ jobs:
           ICETRACKER_TAKEPROFIT_LEVEL: ${{ secrets.TakeprofitPercent }}
           ICETRACKER_IGNORED_ACCOUNTS: ${{ secrets.IgnoredAccounts }}
           ICETRACKER_IGNORED_SYMBOLS: ${{ secrets.IgnoredSymbols }}
+          ICETRACKER_PORTFOLIO_TARGET_BALANCE_OVERRIDE: ${{ secrets.PortfolioTargetBalanceOverride }}
       - name: Check if there are required actions
         id: check_files
         uses: andstor/file-existence-action@v1

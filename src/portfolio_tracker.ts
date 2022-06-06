@@ -1,14 +1,22 @@
 import {ShrimpyApi} from "./shrimpy/api";
 import {getenv, sleep} from "./utils";
 import fs from 'fs'
+import {toPortfolioOverride} from "./model/portfolio_override";
 
 const publicKey = getenv('ICETRACKER_SHRIMPY_API_KEY', '')
 const privateKey = getenv('ICETRACKER_SHRIMPY_API_SECRET', '');
-const targetBalance = +(getenv('ICETRACKER_TARGET_BALANCE', '250'));
-const refillLevel = +(getenv('ICETRACKER_REFILL_LEVEL', '8'))/100.0;
-const takeProfitLevel = +(getenv('ICETRACKER_TAKEPROFIT_LEVEL', '30'))/100.0;
+const globalTargetBalance = +(getenv('ICETRACKER_TARGET_BALANCE', '250'));
+const refillLevel = +(getenv('ICETRACKER_REFILL_LEVEL', '7')) / 100.0;
+const takeProfitLevel = +(getenv('ICETRACKER_TAKEPROFIT_LEVEL', '7')) / 100.0;
 const ignoredIds = (getenv('ICETRACKER_IGNORED_ACCOUNTS', '')).split(",");
 const ignoredSymbols = getenv('ICETRACKER_IGNORED_SYMBOLS', 'USDT,BTC').split(",");
+const portfolioValueOverrides = getenv('ICETRACKER_PORTFOLIO_TARGET_BALANCE_OVERRIDE', '').split(",")
+    .map(p => toPortfolioOverride(p));
+const portfolioValueOverrideUsdMap: any = {}
+for (const override of portfolioValueOverrides) {
+    portfolioValueOverrideUsdMap[override.id] = override.usdValue;
+}
+
 const api = new ShrimpyApi(publicKey, privateKey);
 
 
@@ -49,8 +57,9 @@ async function loadPortfolios(accounts: ShrimpyAccount[]) {
 function findRequiredActions(filteredPortfolios: Portfolio[]) {
     let actions: string[] = []
     for (const portfolio of filteredPortfolios.sort((a, b) => b.usdValue - a.usdValue)) {
+        let targetBalance = portfolioValueOverrideUsdMap[portfolio.id] ?? globalTargetBalance;
         let ratio = portfolio.usdValue / targetBalance - 1;
-        let portfolioLine = `(id:${portfolio.id}) ${portfolio.symbol}: ${(ratio * 100).toFixed(2)}%`;
+        let portfolioLine = `(id:${portfolio.id}) ${portfolio.symbol}: ${(ratio * 100).toFixed(2)}% to target: ${targetBalance}`;
 
         if (ratio < -refillLevel) {
             actions.push(`REFILL ${portfolioLine}`)
