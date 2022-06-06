@@ -46,6 +46,7 @@ If you don't want to track certain portfolios you can provide ids to disable the
 default: none
 
 format: comma separated list of accounts with balances after a colon, example: 220181:150.00,220195:150.0
+
 If you want to have different target balances for each portfolio (the id is in the notification e-mail)
 
 
