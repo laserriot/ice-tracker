@@ -1,0 +1,39 @@
+name: Reset portfolio refills
+
+on:
+  workflow_dispatch:
+    inputs:
+      portfolioId:
+        description: 'Portfolio id'
+        required: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [16.x]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+      - run: npm ci
+        name: Prepare script
+      - run: npm run reset
+        name: Reset portfolio
+        env:
+          ICETRACKER_TARGET_BALANCE: ${{ secrets.TargetBalance }}
+          ICETRACKER_STATE_FILE_ENCRYPTION_KEY: ${{ secrets.EncryptionKey }}
+          ICETRACKER_STATE_FILE: ${{ secrets.StateFileName }}
+          ICETRACKER_REFILL_LEVEL: ${{ secrets.RefillPercent }}
+          ICETRACKER_TAKEPROFIT_LEVEL: ${{ secrets.TakeprofitPercent }}
+          ICETRACKER_BASE_CURRENCY: ${{ secrets.BaseCurrency }}
+          ICETRACKER_PORTFOLIO_ID: ${{ github.event.inputs.portfolioId }}
+      - uses: stefanzweifel/git-auto-commit-action@v4
+        name: Update state
+        with:
+          commit_message: State update
+          file_pattern: '*.state *.state.nonce'
