@@ -1,4 +1,4 @@
-name: Notifications
+name: Take profit
 
 on:
   workflow_dispatch:

@@ -1,4 +1,4 @@
-name: Notifications
+name: Refill
 
 on:
   workflow_dispatch:
