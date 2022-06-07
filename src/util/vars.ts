@@ -4,8 +4,8 @@ import {getenv} from "./utils";
 export const globalTargetBalance = +(getenv('ICETRACKER_TARGET_BALANCE', '250'));
 export const encryptionKey = getenv('ICETRACKER_STATE_FILE_ENCRYPTION_KEY', '')
 export const statePath = getenv('ICETRACKER_STATE_FILE', 'tracker.state')
-export const refillLevel = +(getenv('ICETRACKER_REFILL_LEVEL', '2')) / 100.0;
-export const takeProfitLevel = +(getenv('ICETRACKER_TAKEPROFIT_LEVEL', '2')) / 100.0;
+export const refillLevel = +(getenv('ICETRACKER_REFILL_LEVEL', '7')) / 100.0;
+export const takeProfitLevel = +(getenv('ICETRACKER_TAKEPROFIT_LEVEL', '7')) / 100.0;
 
 /* REPORTING */
 export const publicKey = getenv('ICETRACKER_SHRIMPY_API_KEY', '')
