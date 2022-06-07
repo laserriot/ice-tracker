@@ -1,5 +1,5 @@
 interface Portfolio {
     id: string,
-    symbol: string,
+    symbols: string[],
     usdValue: number
 }

@@ -1,24 +1,22 @@
-import {ShrimpyApi} from "./shrimpy/api";
-import {getenv, sleep} from "./utils";
+import {ShrimpyApi} from "../shrimpy/api";
+import {sleep} from "../util/utils";
 import fs from 'fs'
-import {toPortfolioOverride} from "./model/portfolio_override";
-
-const publicKey = getenv('ICETRACKER_SHRIMPY_API_KEY', '')
-const privateKey = getenv('ICETRACKER_SHRIMPY_API_SECRET', '');
-const globalTargetBalance = +(getenv('ICETRACKER_TARGET_BALANCE', '250'));
-const refillLevel = +(getenv('ICETRACKER_REFILL_LEVEL', '7')) / 100.0;
-const takeProfitLevel = +(getenv('ICETRACKER_TAKEPROFIT_LEVEL', '7')) / 100.0;
-const ignoredIds = (getenv('ICETRACKER_IGNORED_ACCOUNTS', '')).split(",");
-const ignoredSymbols = getenv('ICETRACKER_IGNORED_SYMBOLS', 'USDT,BTC').split(",");
-const portfolioValueOverrides = getenv('ICETRACKER_PORTFOLIO_TARGET_BALANCE_OVERRIDE', '').split(",")
-    .map(p => toPortfolioOverride(p));
-const portfolioValueOverrideUsdMap: any = {}
-for (const override of portfolioValueOverrides) {
-    portfolioValueOverrideUsdMap[override.id] = override.usdValue;
-}
+import {
+    baseCurrency,
+    encryptionKey,
+    globalTargetBalance,
+    ignoredIds,
+    privateKey,
+    publicKey,
+    refillLevel,
+    statePath,
+    takeProfitLevel
+} from "../util/vars";
+import {StateManager} from "../state/state_manager";
+import {EncryptedFileRepository} from "../state/encrypted_file_repository";
 
 const api = new ShrimpyApi(publicKey, privateKey);
-
+const stateManager = new StateManager(new EncryptedFileRepository(encryptionKey, statePath), globalTargetBalance);
 
 function processPortfolio(accountId: string, portfolios: ShrimpyBalances): Portfolio {
     let sum = 0;
@@ -26,10 +24,13 @@ function processPortfolio(accountId: string, portfolios: ShrimpyBalances): Portf
         sum += portfolio.usdValue;
     }
     // symbol only includes coins with > 20% of portfolio value (allows for leftover btc, etc)
-    let symbol = portfolios.balances.filter((a: any) => a.usdValue > sum * 0.2).map((a: any) => a.symbol).join('-')
+    let symbols = portfolios.balances
+        .filter(a => a.usdValue > sum * 0.2)
+        .map(a => a.symbol)
+        .sort((a, b) => baseCurrency == b ? -1 : baseCurrency == a ? 1 : a.localeCompare(b))
     return {
         id: accountId,
-        symbol: symbol,
+        symbols: symbols,
         usdValue: sum
     };
 }
@@ -38,7 +39,7 @@ async function loadPortfolios(accounts: ShrimpyAccount[]) {
     let portfolios: Portfolio[] = []
     for (const account of accounts) {
         try {
-            await sleep(50); // helps with Shrimpy API request limits
+            await sleep(500); // helps with Shrimpy API request limits
             await api.getBalances(account.id)
                 .then((balances) => {
                     let p = processPortfolio(account.id, balances)
@@ -54,20 +55,32 @@ async function loadPortfolios(accounts: ShrimpyAccount[]) {
     return portfolios;
 }
 
+
 function findRequiredActions(filteredPortfolios: Portfolio[]) {
+    let state = stateManager.loadState()
+    const previousKeys = state.keys().sort()
+
     let actions: string[] = []
     for (const portfolio of filteredPortfolios.sort((a, b) => b.usdValue - a.usdValue)) {
-        let targetBalance = portfolioValueOverrideUsdMap[portfolio.id] ?? globalTargetBalance;
-        let ratio = portfolio.usdValue / targetBalance - 1;
-        let portfolioLine = `(id:${portfolio.id}) ${portfolio.symbol}: ${(ratio * 100).toFixed(2)}%. Target: $${targetBalance.toFixed(2)}`;
 
-        if (ratio < -refillLevel) {
-            actions.push(`REFILL ${portfolioLine}`)
-        } else if (ratio > takeProfitLevel) {
-            actions.push(`TAKE PROFIT ${portfolioLine}`)
+        const portfolioState = state.get(portfolio.id)
+        const symbol = portfolio.symbols.join('-')
+        let takeProfitAt = portfolioState.takeProfitTarget(takeProfitLevel);
+        let refillAt = portfolioState.refillTarget(refillLevel);
+        let portfolioLine = `${symbol} [id:${portfolio.id}]. `
+            + `Target: $${portfolioState.targetValue.toFixed(2)}, invested: $${portfolioState.invested.toFixed(2)}, `
+            + `refill at: ${refillAt.toFixed(2)}, take profit at: $${takeProfitAt.toFixed(2)}, current: $${portfolio.usdValue.toFixed(2)}`;
+
+        if (portfolio.usdValue < refillAt) {
+            actions.push(`REFILL $${(Math.max(portfolioState.targetValue, portfolioState.invested) - portfolio.usdValue).toFixed(2)} - ${portfolioLine}`)
+        } else if (portfolio.usdValue > takeProfitAt) {
+            actions.push(`TAKE PROFIT $${(portfolio.usdValue - portfolioState.targetValue).toFixed(2)} - ${portfolioLine}`)
         } else {
             console.log(`NO ACTION: ${portfolioLine}`)
         }
+    }
+    if (JSON.stringify(previousKeys) != JSON.stringify(state.keys().sort())) {
+        stateManager.saveState(state)
     }
     return actions;
 }
@@ -93,7 +106,7 @@ function saveActionsToFile(actions: string[]) {
 
             console.log("Finished")
             const filteredPortfolios = portfolios
-                .filter(p => !ignoredSymbols.includes(p.symbol))
+                .filter(p => p.symbols.length > 1)
                 .filter(p => !ignoredIds.includes(p.id.toString()))
             let actions = findRequiredActions(filteredPortfolios);
 

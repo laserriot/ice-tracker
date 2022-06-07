@@ -8,12 +8,18 @@
     "preserve": "npm run build",
     "serve": "cross-env NODE_ENV=development concurrently \"tsc --watch\" \"nodemon -q dist/index.js\"",
     "prestart": "npm run build",
-    "start": "node dist/portfolio_tracker.js",
+    "start": "node dist/actions/portfolio_tracker.js",
+    "refill": "node dist/actions/refill.js",
+    "takeprofit": "node dist/actions/take_profit.js",
+    "changeall": "node dist/actions/change_all_targets.js",
+    "change": "node dist/actions/change_target.js",
+    "reset": "node dist/actions/reset_invested_value.js",
+    "resetall": "node dist/actions/reset_all_invested_values.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "body-parser": "^1.20.0",
     "axios": "^0.27.2",
+    "body-parser": "^1.20.0",
     "helmet": "^5.1.0",
     "rimraf": "^3.0.2",
     "typescript": "^4.7.3"
@@ -21,6 +27,7 @@
   "devDependencies": {
     "@types/node": "^17.0.39",
     "concurrently": "^7.2.1",
-    "nodemon": "^2.0.16"
+    "nodemon": "^2.0.16",
+    "ts-node": "^10.8.1"
   }
 }

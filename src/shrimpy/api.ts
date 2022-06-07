@@ -1,4 +1,4 @@
-import {ShrimpyAuthenticationProvider} from "../authentication_provider";
+import {ShrimpyAuthenticationProvider} from "./authentication_provider";
 import axios from 'axios';
 
 const accountsPath = "/v1/accounts";
