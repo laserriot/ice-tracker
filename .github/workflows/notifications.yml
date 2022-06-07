@@ -2,7 +2,7 @@ name: Notifications
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "tracker" ]
   schedule:
     - cron: '5 1/4 * * *'
   workflow_dispatch:
