@@ -40,4 +40,4 @@ jobs:
         name: Update state
         with:
           commit_message: State update
-          file_pattern: *.state *.state.nonce
+          file_pattern: '*.state *.state.nonce'
