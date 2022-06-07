@@ -40,4 +40,4 @@ jobs:
         name: Update state
         with:
           commit_message: State update
-          file_pattern: ${{ secrets.StateFileName }} ${{ secrets.StateFileName }}.nonce
+          file_pattern: *.state *.state.nonce
