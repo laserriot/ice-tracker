@@ -10,13 +10,12 @@ You can generate them in Shrimpy dashboard -> Settings -> Security & API -> API 
 -
 E-mail address for notifications
 
-(optional - required for adv. money management) state file name
+(required) CsvUrl
 -
-tracker.state
+default:
 
-(required) state file encryption key
--
-256 bit encryption key in hex format
+(Google Doc publish link)
+
 
 (optional) TargetBalance
 -
@@ -35,7 +34,6 @@ Take profit level (in %).
 default: 7.00
 
 Refill level (in %).
-
 
 Adv. money management is done via github actions at the moment.
 
