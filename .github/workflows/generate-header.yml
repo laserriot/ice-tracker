@@ -22,16 +22,13 @@ jobs:
           cache: 'npm'
       - run: npm ci
         name: Prepare script
-      - run: npm run start
+      - run: npm run generate-csv-header
         name: Get portfolio values
         env:
           ICETRACKER_TARGET_BALANCE: ${{ secrets.TargetBalance }}
-          ICETRACKER_REFILL_LEVEL: ${{ secrets.RefillPercent }}
-          ICETRACKER_TAKEPROFIT_LEVEL: ${{ secrets.TakeprofitPercent }}
           ICETRACKER_SHRIMPY_API_KEY: ${{ secrets.ShrimpyApiKey }}
           ICETRACKER_SHRIMPY_API_SECRET: ${{ secrets.ShrimpyApiSecret }}
           ICETRACKER_BASE_CURRENCY: ${{ secrets.BaseCurrency }}
-          ICETRACKER_CSV_URL: ${{ secrets.CsvUrl }}
       - name: Check if there are required actions
         id: check_files
         uses: andstor/file-existence-action@v1
@@ -50,3 +47,8 @@ jobs:
           to: ${{ secrets.NotificationEmail }}
           subject: 'Ice Tracker: Action required'
           body: ${{ steps.actions.outputs.content }}
+      - name: Upload header
+        uses: actions/upload-artifact@v3
+        with:
+          name: header.txt
+          path: header.txt

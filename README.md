@@ -36,21 +36,6 @@ default: 7.00
 
 Refill level (in %).
 
-(optional) IgnoredSymbols
--
-default: USDT,BTC
-
-Ignores only BTC or only USDT single coin portfolios by default ("default" portfolios). 
-
-(optional) IgnoredAccounts
--
-default: none
-
-format: comma separated list of ids
-
-If you don't want to track certain portfolios you can provide the list of ids to disable them from notifications (the id is in the notification e-mail)
-
-
 
 Adv. money management is done via github actions at the moment.
 

@@ -6,19 +6,16 @@
   "scripts": {
     "build": "rimraf dist && tsc",
     "preserve": "npm run build",
-    "start": "npm run build && node dist/actions/portfolio_tracker.js",
-    "refill": "npm run build && node dist/actions/refill.js",
-    "takeprofit": "npm run build && node dist/actions/take_profit.js",
-    "changeall": "npm run build && node dist/actions/change_all_targets.js",
-    "change": "npm run build && node dist/actions/change_target.js",
-    "reset": "npm run build && node dist/actions/reset_invested_value.js",
-    "resetall": "npm run build && node dist/actions/reset_all_invested_values.js",
+    "generate-csv-header": "npm run build && node dist/actions/generate_header.js",
+    "check-portfolios": "npm run build && node dist/actions/portfolio_tracker.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
     "axios": "^0.27.2",
     "body-parser": "^1.20.0",
+    "csv": "^6.1.0",
     "helmet": "^5.1.0",
+    "request": "^2.88.2",
     "rimraf": "^3.0.2",
     "typescript": "^4.7.3"
   },

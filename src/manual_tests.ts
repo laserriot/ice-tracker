@@ -1,13 +1,10 @@
 //TODO: replace with unit tests
 
-import {StateManager} from "./state/state_manager";
-import {EncryptedFileRepository} from "./state/encrypted_file_repository";
-import {actionValue, encryptionKey, statePath} from "./util/vars";
 import {describe} from "./util/utils";
+import {TrackerState} from "./state/tracker_state";
+import {globalTargetBalance} from "./util/vars";
 
-const sm = new StateManager(new EncryptedFileRepository(encryptionKey, statePath), 1000)
-
-const state = sm.loadState();
+const state = new TrackerState(globalTargetBalance);
 const portfolio = state.get('123');
 const refillPercent = 0.05;
 const takeProfitPercent = 0.05;
@@ -32,6 +29,3 @@ portfolio.refill(portfolio.invested - portfolio.refillTarget(refillPercent));
 
 
 ds()
-
-sm.saveState(state)
-

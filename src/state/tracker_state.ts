@@ -20,12 +20,6 @@ export class TrackerState {
         }
         return this._portfolios[portfolioId];
     }
-
-    public updateAllTargets(newTarget: number) {
-        for (const portfolio of Object.values(this._portfolios)) {
-            portfolio.updateTarget(newTarget)
-        }
-    }
 }
 
 export class PortfolioState {
@@ -44,8 +38,8 @@ export class PortfolioState {
         this._targetValue = newTarget;
     }
 
-    public resetInvestments(): void {
-        this._invested = this._targetValue;
+    public resetInvestments(newValue: number = this._targetValue): void {
+        this._invested = newValue;
     }
 
     public refill(refill: number): void {
@@ -72,6 +66,14 @@ export class PortfolioState {
 
     get targetValue(): number {
         return this._targetValue;
+    }
+
+    get tracked(): boolean {
+        return this._tracked
+    }
+
+    set tracked(tracked: boolean) {
+        this._tracked = tracked;
     }
 
     public refillMultiplier(invested: number, targetValue: number, refillPercent: number): number {
