@@ -22,8 +22,8 @@ jobs:
           cache: 'npm'
       - run: npm ci
         name: Prepare script
-      - run: npm run start
-        name: Get portfolio values
+      - run: npm run check-portfolios
+        name: Check portfolios
         env:
           ICETRACKER_TARGET_BALANCE: ${{ secrets.TargetBalance }}
           ICETRACKER_REFILL_LEVEL: ${{ secrets.RefillPercent }}
