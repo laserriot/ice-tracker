@@ -1,8 +1,6 @@
 name: Generate Google Sheet header
 
 on:
-  push:
-    branches: [ "main" ]
   workflow_dispatch:
 
 jobs:
