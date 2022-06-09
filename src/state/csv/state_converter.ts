@@ -4,7 +4,7 @@ import {describe} from "../../util/utils";
 const actionSeparator = "\t";
 const headerSeparator = ",";
 
-export function stateFromCsv(contents: string, defaultTarget: number): TrackerState {
+export function stateFromTsv(contents: string, defaultTarget: number): TrackerState {
     /*
         [0]: AccountId
         [1]: Pair

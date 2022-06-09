@@ -2,7 +2,7 @@ import {ShrimpyApi} from "../shrimpy/api";
 import fs from 'fs'
 import {tsvUrl, globalTargetBalance, privateKey, publicKey, refillLevel, takeProfitLevel} from "../util/vars";
 import {TrackerState} from "../state/tracker_state";
-import {stateFromCsv} from "../state/csv/state_converter";
+import {stateFromTsv} from "../state/csv/state_converter";
 import {loadPortfolios} from "../shrimpy/portfolio";
 
 const api = new ShrimpyApi(publicKey, privateKey);
@@ -56,7 +56,7 @@ request.get(tsvUrl,
             process.exit(1)
         }
         if (response.statusCode == 200) {
-            const state = stateFromCsv(body, globalTargetBalance);
+            const state = stateFromTsv(body, globalTargetBalance);
 
             api.getAccounts()
                 .then(async accounts => {
