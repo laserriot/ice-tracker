@@ -34,9 +34,12 @@ function loadBalances(filteredPortfolios: Portfolio[], state: TrackerState): str
     return actions;
 }
 
-function saveActionsToFile(actions: string[], path: string = 'actions.txt') {
+function saveActionsToFile(actions: string[], path: string = 'actions.txt', header: string = '') {
     console.log(`ACTIONS:`)
+
     const actionsFile = fs.openSync(path, 'w')
+    fs.appendFileSync(actionsFile, `https://dashboard.shrimpy.io\n${tsvUrl}\n\n`);
+
     for (const action of actions) {
         console.log(action)
         fs.appendFileSync(actionsFile, `${action}\n`)

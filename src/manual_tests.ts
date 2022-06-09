@@ -1,23 +1,31 @@
 //TODO: replace with unit tests
 
 import {describe} from "./util/utils";
-import {TrackerState} from "./state/tracker_state";
+import {PortfolioState, TrackerState} from "./state/tracker_state";
 import {globalTargetBalance} from "./util/vars";
 
 const state = new TrackerState(globalTargetBalance);
-const portfolio = state.get('123');
+const portfolio = new PortfolioState(100)
 const refillPercent = 0.05;
 const takeProfitPercent = 0.05;
 const ds = () => describe(portfolio, refillPercent, takeProfitPercent);
 
 ds()
-portfolio.refill(Math.max(portfolio.invested, portfolio.targetValue) - portfolio.refillTarget(refillPercent));
+portfolio.refill(portfolio.targetValue - portfolio.refillTarget(refillPercent));
 ds()
-portfolio.refill(Math.max(portfolio.invested, portfolio.targetValue) - portfolio.refillTarget(refillPercent));
+portfolio.refill(portfolio.targetValue - portfolio.refillTarget(refillPercent));
 ds()
-portfolio.refill(Math.max(portfolio.invested, portfolio.targetValue) - portfolio.refillTarget(refillPercent));
+portfolio.refill(portfolio.targetValue - portfolio.refillTarget(refillPercent));
 ds()
-portfolio.refill(Math.max(portfolio.invested, portfolio.targetValue) - portfolio.refillTarget(refillPercent));
+portfolio.refill(portfolio.targetValue - portfolio.refillTarget(refillPercent));
+ds()
+portfolio.refill(portfolio.targetValue - portfolio.refillTarget(refillPercent));
+ds()
+portfolio.refill(portfolio.targetValue - portfolio.refillTarget(refillPercent));
+ds()
+portfolio.refill(portfolio.targetValue - portfolio.refillTarget(refillPercent));
+ds()
+portfolio.refill(portfolio.targetValue - portfolio.refillTarget(refillPercent));
 ds()
 // portfolio.takeProfit(300)
 // ds()
@@ -25,6 +33,6 @@ ds()
 // ds()
 //
 // portfolio.updateTarget(2000)
-// portfolio.refill(Math.max(portfolio.invested, portfolio.targetValue) - portfolio.refillTarget(refillPercent));
+// portfolio.refill(portfolio.targetValue - portfolio.refillTarget(refillPercent));
 
 
