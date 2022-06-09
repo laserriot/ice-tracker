@@ -31,7 +31,7 @@ jobs:
           ICETRACKER_SHRIMPY_API_KEY: ${{ secrets.ShrimpyApiKey }}
           ICETRACKER_SHRIMPY_API_SECRET: ${{ secrets.ShrimpyApiSecret }}
           ICETRACKER_BASE_CURRENCY: ${{ secrets.BaseCurrency }}
-          ICETRACKER_CSV_URL: ${{ secrets.CsvUrl }}
+          ICETRACKER_TSV_URL: ${{ secrets.TsvUrl }}
       - name: Check if there are required actions
         id: check_files
         uses: andstor/file-existence-action@v1
