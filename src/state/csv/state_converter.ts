@@ -1,6 +1,8 @@
 import {TrackerState} from "../tracker_state";
 import {describe} from "../../util/utils";
 
+const actionSeparator = "\t";
+const headerSeparator = ",";
 
 export function stateFromCsv(contents: string, defaultTarget: number): TrackerState {
     /*
@@ -21,7 +23,7 @@ export function stateFromCsv(contents: string, defaultTarget: number): TrackerSt
         if (!line.trim()) {
             continue
         }
-        const columns = line.split(',')
+        const columns = line.split(actionSeparator)
         let isIgnored = columns[3].trim().length > 0;
         if (isIgnored) {
             continue;
@@ -80,14 +82,14 @@ export function toCsvHeader(state: TrackerState, filteredPortfolios: Portfolio[]
     for (const portfolioId of portfolioIds) {
         accountLine.push(portfolioId)
     }
-    header.push(accountLine.join(','))
+    header.push(accountLine.join(headerSeparator))
 
     const symbolsLine = []
     symbolsLine.push('Symbols')
     for (const portfolioId of portfolioIds) {
         symbolsLine.push(symbolMap[portfolioId])
     }
-    header.push(symbolsLine.join(','))
+    header.push(symbolsLine.join(headerSeparator))
 
 
     const targetValueLine = []
@@ -95,7 +97,7 @@ export function toCsvHeader(state: TrackerState, filteredPortfolios: Portfolio[]
     for (const portfolioId of portfolioIds) {
         targetValueLine.push(state.get(portfolioId).targetValue)
     }
-    header.push(targetValueLine.join(','))
+    header.push(targetValueLine.join(headerSeparator))
 
     header.push("Ignore")
 
@@ -105,7 +107,7 @@ export function toCsvHeader(state: TrackerState, filteredPortfolios: Portfolio[]
     for (const portfolioId of portfolioIds) {
         portfolioLine.push(`${Math.floor((i++ / 4) + 1)}`)
     }
-    header.push(portfolioLine.join(','))
+    header.push(portfolioLine.join(headerSeparator))
 
     return header
 }
