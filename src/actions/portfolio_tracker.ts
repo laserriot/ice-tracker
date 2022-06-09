@@ -1,6 +1,6 @@
 import {ShrimpyApi} from "../shrimpy/api";
 import fs from 'fs'
-import {csvUrl, globalTargetBalance, privateKey, publicKey, refillLevel, takeProfitLevel} from "../util/vars";
+import {tsvUrl, globalTargetBalance, privateKey, publicKey, refillLevel, takeProfitLevel} from "../util/vars";
 import {TrackerState} from "../state/tracker_state";
 import {stateFromCsv} from "../state/csv/state_converter";
 import {loadPortfolios} from "../shrimpy/portfolio";
@@ -48,7 +48,7 @@ function saveActionsToFile(actions: string[]) {
 }
 
 const request = require('request');
-request.get(csvUrl,
+request.get(tsvUrl,
     async function (error: any, response: any, body: any) {
         if (error) {
             console.error('Failed to load CSV/Google Sheet')
