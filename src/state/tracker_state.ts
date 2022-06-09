@@ -79,9 +79,11 @@ export class PortfolioState {
     public refillMultiplier(invested: number, targetValue: number, refillPercent: number): number {
         let tempTarget = targetValue;
         let multiplier = 1;
-        while (tempTarget + tolerance < invested) {
+        var refillStep = refillPercent*targetValue;
+        while (tempTarget + tolerance - invested < -refillStep*0.33) {
             const tempRefillLevel = tempTarget * (1 - refillPercent*multiplier);
-            tempTarget += tempTarget - tempRefillLevel
+            refillStep = tempTarget - tempRefillLevel;
+            tempTarget += refillStep;
             multiplier++;
         }
         return multiplier;

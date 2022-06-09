@@ -11,21 +11,20 @@ const takeProfitPercent = 0.05;
 const ds = () => describe(portfolio, refillPercent, takeProfitPercent);
 
 ds()
-portfolio.refill(portfolio.invested - portfolio.refillTarget(refillPercent));
+portfolio.refill(Math.max(portfolio.invested, portfolio.targetValue) - portfolio.refillTarget(refillPercent));
 ds()
-portfolio.refill(portfolio.invested - portfolio.refillTarget(refillPercent));
+portfolio.refill(Math.max(portfolio.invested, portfolio.targetValue) - portfolio.refillTarget(refillPercent));
 ds()
-portfolio.refill(portfolio.invested - portfolio.refillTarget(refillPercent));
+portfolio.refill(Math.max(portfolio.invested, portfolio.targetValue) - portfolio.refillTarget(refillPercent));
 ds()
-portfolio.refill(portfolio.invested - portfolio.refillTarget(refillPercent));
+portfolio.refill(Math.max(portfolio.invested, portfolio.targetValue) - portfolio.refillTarget(refillPercent));
 ds()
-portfolio.takeProfit(300)
-ds()
-portfolio.takeProfit(portfolio.takeProfitTarget(takeProfitPercent) - portfolio.targetValue)
-ds()
+// portfolio.takeProfit(300)
+// ds()
+// portfolio.takeProfit(portfolio.takeProfitTarget(takeProfitPercent) - portfolio.targetValue)
+// ds()
+//
+// portfolio.updateTarget(2000)
+// portfolio.refill(Math.max(portfolio.invested, portfolio.targetValue) - portfolio.refillTarget(refillPercent));
 
-portfolio.updateTarget(2000)
-portfolio.refill(portfolio.invested - portfolio.refillTarget(refillPercent));
 
-
-ds()
