@@ -7,7 +7,7 @@ import {loadPortfolios} from "../shrimpy/portfolio";
 
 const api = new ShrimpyApi(publicKey, privateKey);
 
-function findRequiredActions(filteredPortfolios: Portfolio[], state: TrackerState) {
+function loadBalances(filteredPortfolios: Portfolio[], state: TrackerState): string[] {
     let actions: string[] = []
     for (const portfolio of filteredPortfolios.sort((a, b) => b.usdValue - a.usdValue)) {
         const portfolioState = state.get(portfolio.id)
@@ -28,15 +28,15 @@ function findRequiredActions(filteredPortfolios: Portfolio[], state: TrackerStat
         } else if (portfolio.usdValue > takeProfitAt) {
             actions.push(`TAKE PROFIT $${(portfolio.usdValue - portfolioState.targetValue).toFixed(2)} - ${portfolioLine}`)
         } else {
-            console.log(`NO ACTION: ${portfolioLine}`)
+            actions.push(`NO ACTION: ${portfolioLine}`)
         }
     }
     return actions;
 }
 
-function saveActionsToFile(actions: string[]) {
+function saveActionsToFile(actions: string[], path: string = 'actions.txt') {
     console.log(`ACTIONS:`)
-    const actionsFile = fs.openSync('actions.txt', 'w')
+    const actionsFile = fs.openSync(path, 'w')
     for (const action of actions) {
         console.log(action)
         fs.appendFileSync(actionsFile, `${action}\n`)
@@ -67,13 +67,16 @@ request.get(tsvUrl,
                     const filteredPortfolios = portfolios
                         .filter(p => p.symbols.length > 1)
 
-                    let actions = findRequiredActions(filteredPortfolios, state);
+                    let balances = loadBalances(filteredPortfolios, state);
 
+                    saveActionsToFile(balances, "balances.txt")
+
+                    let actions = balances.filter(s => !s.startsWith("NO ACTION"));
                     if (actions.length <= 0) {
                         return;
                     }
 
-                    saveActionsToFile(actions);
+                    saveActionsToFile(actions.filter(s => !s.startsWith("NO ACTION")), "actions.txt");
                 }, err => {
                     console.error(err);
                 })

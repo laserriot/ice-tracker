@@ -50,3 +50,8 @@ jobs:
           to: ${{ secrets.NotificationEmail }}
           subject: 'Ice Tracker: Action required'
           body: ${{ steps.actions.outputs.content }}
+      - name: Upload balances
+        uses: actions/upload-artifact@v3
+        with:
+          name: balances.txt
+          path: balances.txt
