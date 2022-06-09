@@ -10,7 +10,7 @@ You can generate them in Shrimpy dashboard -> Settings -> Security & API -> API 
 -
 E-mail address for notifications
 
-(required) CsvUrl
+(required) TsvUrl
 -
 default:
 
