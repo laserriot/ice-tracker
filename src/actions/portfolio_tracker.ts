@@ -1,6 +1,14 @@
 import {ShrimpyApi} from "../shrimpy/api";
 import fs from 'fs'
-import {tsvUrl, globalTargetBalance, privateKey, publicKey, refillLevel, takeProfitLevel} from "../util/vars";
+import {
+    tsvUrl,
+    globalTargetBalance,
+    privateKey,
+    publicKey,
+    refillLevel,
+    takeProfitLevel,
+    emailHeader
+} from "../util/vars";
 import {TrackerState} from "../state/tracker_state";
 import {stateFromTsv} from "../state/csv/state_converter";
 import {loadPortfolios} from "../shrimpy/portfolio";
@@ -35,10 +43,10 @@ function loadBalances(filteredPortfolios: Portfolio[], state: TrackerState): str
 }
 
 function saveActionsToFile(actions: string[], path: string = 'actions.txt', header: string = '') {
-    console.log(`ACTIONS:`)
+    console.log(`${path}`)
 
     const actionsFile = fs.openSync(path, 'w')
-    fs.appendFileSync(actionsFile, `https://dashboard.shrimpy.io\n${tsvUrl}\n\n`);
+    fs.appendFileSync(actionsFile, `https://dashboard.shrimpy.io\n${emailHeader}\n\n`);
 
     for (const action of actions) {
         console.log(action)

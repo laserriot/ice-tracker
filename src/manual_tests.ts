@@ -1,32 +1,30 @@
 //TODO: replace with unit tests
 
 import {describe} from "./util/utils";
-import {PortfolioState, TrackerState} from "./state/tracker_state";
+import {TrackerState} from "./state/tracker_state";
 import {globalTargetBalance} from "./util/vars";
 
 const state = new TrackerState(globalTargetBalance);
-const portfolio = new PortfolioState(100)
-const refillPercent = 0.05;
-const takeProfitPercent = 0.05;
+const portfolio = state.get('123');
+const refillPercent = 0.10;
+const takeProfitPercent = 0.30;
 const ds = () => describe(portfolio, refillPercent, takeProfitPercent);
 
 ds()
-portfolio.refill(portfolio.targetValue - portfolio.refillTarget(refillPercent));
+portfolio.refill(Math.max(portfolio.invested, portfolio.targetValue) - portfolio.refillTarget(refillPercent));
 ds()
-portfolio.refill(portfolio.targetValue - portfolio.refillTarget(refillPercent));
+portfolio.refill(Math.max(portfolio.invested, portfolio.targetValue) - portfolio.refillTarget(refillPercent));
 ds()
-portfolio.refill(portfolio.targetValue - portfolio.refillTarget(refillPercent));
+portfolio.refill(Math.max(portfolio.invested, portfolio.targetValue) - portfolio.refillTarget(refillPercent));
 ds()
-portfolio.refill(portfolio.targetValue - portfolio.refillTarget(refillPercent));
+portfolio.refill(Math.max(portfolio.invested, portfolio.targetValue) - portfolio.refillTarget(refillPercent));
 ds()
-portfolio.refill(portfolio.targetValue - portfolio.refillTarget(refillPercent));
+portfolio.takeProfit(portfolio.takeProfitTarget(takeProfitPercent) - Math.max(portfolio.invested, portfolio.targetValue));
 ds()
-portfolio.refill(portfolio.targetValue - portfolio.refillTarget(refillPercent));
+
+portfolio.refill(Math.max(portfolio.invested, portfolio.targetValue) - portfolio.refillTarget(refillPercent));
 ds()
-portfolio.refill(portfolio.targetValue - portfolio.refillTarget(refillPercent));
-ds()
-portfolio.refill(portfolio.targetValue - portfolio.refillTarget(refillPercent));
-ds()
+
 // portfolio.takeProfit(300)
 // ds()
 // portfolio.takeProfit(portfolio.takeProfitTarget(takeProfitPercent) - portfolio.targetValue)

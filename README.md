@@ -35,7 +35,9 @@ default: 7.00
 
 Refill level (in %).
 
-Adv. money management is done via github actions at the moment.
+(optional) EmailHeader
+-
+default: 
 
-Full instructions to follow
+E-mail preamble (put portfolio url/tracking doc here, etc)
 

@@ -82,7 +82,7 @@ export class PortfolioState {
         var refillStep = refillPercent*targetValue;
         while (tempTarget + tolerance - invested < -refillStep*0.33) {
             const tempRefillLevel = tempTarget * (1 - refillPercent*multiplier);
-            refillStep = targetValue - tempRefillLevel;
+            refillStep = tempTarget - tempRefillLevel;
             tempTarget += refillStep;
             multiplier++;
         }
