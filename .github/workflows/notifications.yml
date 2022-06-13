@@ -25,13 +25,10 @@ jobs:
       - run: npm run check-portfolios
         name: Check portfolios
         env:
-          ICETRACKER_TARGET_BALANCE: ${{ secrets.TargetBalance }}
-          ICETRACKER_REFILL_LEVEL: ${{ secrets.RefillPercent }}
-          ICETRACKER_TAKEPROFIT_LEVEL: ${{ secrets.TakeprofitPercent }}
           ICETRACKER_SHRIMPY_API_KEY: ${{ secrets.ShrimpyApiKey }}
           ICETRACKER_SHRIMPY_API_SECRET: ${{ secrets.ShrimpyApiSecret }}
-          ICETRACKER_BASE_CURRENCY: ${{ secrets.BaseCurrency }}
           ICETRACKER_TSV_URL: ${{ secrets.TsvUrl }}
+          ICETRACKER_BASE_CURRENCY: ${{ secrets.BaseCurrency }}
           ICETRACKER_HEADER: ${{ secrets.EmailHeader }}
       - name: Check if there are required actions
         id: check_files
@@ -49,7 +46,7 @@ jobs:
         uses: cinotify/github-action@main
         with:
           to: ${{ secrets.NotificationEmail }}
-          subject: 'Ice Tracker: Action required'
+          subject: 'Portfolio Tracker: Action required'
           body: ${{ steps.actions.outputs.content }}
       - name: Upload balances
         uses: actions/upload-artifact@v3
