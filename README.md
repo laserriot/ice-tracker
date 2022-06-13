@@ -17,27 +17,9 @@ default:
 (Google Doc publish link)
 
 
-(optional) TargetBalance
--
-default: 250.00
-
-Target portfolio balance for all coins.
-
-(optional) TakeprofitPercent
--
-default: 7.00
-
-Take profit level (in %).
-
-(optional) RefillPercent
--
-default: 7.00
-
-Refill level (in %).
-
 (optional) EmailHeader
 -
 default: 
 
-E-mail preamble (put portfolio url/tracking doc here, etc)
+E-mail preamble (You can put portfolio url/tracking doc here, etc)
 
