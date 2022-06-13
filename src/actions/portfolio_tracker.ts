@@ -1,23 +1,16 @@
 import {ShrimpyApi} from "../shrimpy/api";
 import fs from 'fs'
-import {
-    tsvUrl,
-    globalTargetBalance,
-    privateKey,
-    publicKey,
-    refillLevel,
-    takeProfitLevel,
-    emailHeader
-} from "../util/vars";
+import {emailHeader, privateKey, publicKey, tsvUrl} from "../util/vars";
 import {TrackerState} from "../state/tracker_state";
 import {stateFromTsv} from "../state/csv/state_converter";
 import {loadPortfolios} from "../shrimpy/portfolio";
+import {compareString} from "../util/utils";
 
 const api = new ShrimpyApi(publicKey, privateKey);
 
 function loadBalances(filteredPortfolios: Portfolio[], state: TrackerState): string[] {
     let actions: string[] = []
-    for (const portfolio of filteredPortfolios.sort((a, b) => b.usdValue - a.usdValue)) {
+    for (const portfolio of filteredPortfolios.sort((a, b) => compareString(a.id, b.id))) {
         const portfolioState = state.get(portfolio.id)
         const symbol = portfolio.symbols.join('-')
         if (!portfolioState.tracked) {
@@ -25,19 +18,24 @@ function loadBalances(filteredPortfolios: Portfolio[], state: TrackerState): str
             continue;
         }
 
-        let takeProfitAt = portfolioState.takeProfitTarget(takeProfitLevel);
-        let refillAt = portfolioState.refillTarget(refillLevel);
+        let refillLevel = portfolioState.refillLevel();
+        let takeProfitLevel = portfolioState.tpLevel();
+        let target = portfolioState.initialInvestment;
         let portfolioLine = `${symbol} [id:${portfolio.id}]. `
-            + `Target: $${portfolioState.targetValue.toFixed(2)}, invested: $${portfolioState.invested.toFixed(2)}, `
-            + `refill at: ${refillAt.toFixed(2)}, take profit at: $${takeProfitAt.toFixed(2)}, current: $${portfolio.usdValue.toFixed(2)}`;
+            + `Target: ${target.toFixed(2)}. Refill at: ${refillLevel.toFixed(2)}, `
+            + `current: $${portfolio.usdValue.toFixed(2)}, take profit at: $${takeProfitLevel.toFixed(2)}`;
 
-        if (portfolio.usdValue < refillAt) {
-            actions.push(`REFILL $${(Math.max(portfolioState.targetValue, portfolioState.invested) - portfolio.usdValue).toFixed(2)} - ${portfolioLine}`)
-        } else if (portfolio.usdValue > takeProfitAt) {
-            actions.push(`TAKE PROFIT $${(portfolio.usdValue - portfolioState.targetValue).toFixed(2)} - ${portfolioLine}`)
+        if (portfolio.usdValue < refillLevel) {
+            actions.push(`REFILL $${(target - portfolio.usdValue).toFixed(2)} to ${[target.toFixed(2)]} - ${portfolioLine}`)
+        } else if (portfolio.usdValue > takeProfitLevel) {
+            actions.push(`TAKE PROFIT $${(portfolio.usdValue - target).toFixed(2)} to ${[target.toFixed(2)]} - ${portfolioLine}`)
         } else {
             actions.push(`NO ACTION: ${portfolioLine}`)
         }
+    }
+
+    for (const incomplete of state.incomplete) {
+        actions.push(`FAILED TO READ GOOGLE DOCS LINE. PLEASE FIX OR DISABLE: ${incomplete}`)
     }
     return actions;
 }
@@ -67,7 +65,7 @@ request.get(tsvUrl,
             process.exit(1)
         }
         if (response.statusCode == 200) {
-            const state = stateFromTsv(body, globalTargetBalance);
+            const state = stateFromTsv(body);
 
             api.getAccounts()
                 .then(async accounts => {

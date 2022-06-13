@@ -1,11 +1,8 @@
 import {getenv} from "./utils";
 
 /* SETTINGS */
-export const globalTargetBalance = +(getenv('ICETRACKER_TARGET_BALANCE', '250'));
 export const tsvUrl = getenv('ICETRACKER_TSV_URL', '')
 export const emailHeader = getenv('ICETRACKER_HEADER', '')
-export const refillLevel = +(getenv('ICETRACKER_REFILL_LEVEL', '7')) / 100.0;
-export const takeProfitLevel = +(getenv('ICETRACKER_TAKEPROFIT_LEVEL', '7')) / 100.0;
 
 /* REPORTING */
 export const publicKey = getenv('ICETRACKER_SHRIMPY_API_KEY', '')

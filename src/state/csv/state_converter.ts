@@ -1,66 +1,93 @@
-import {TrackerState} from "../tracker_state";
-import {describe} from "../../util/utils";
+import {PortfolioState, TrackerState} from "../tracker_state";
 
 const actionSeparator = "\t";
 const headerSeparator = ",";
 
-export function stateFromTsv(contents: string, defaultTarget: number): TrackerState {
-    /*
-        [0]: AccountId
-        [1]: Pair
-        [2]: Target value
-        [3]: Ignore
-        [4]: Portfolio
-        [5]: comments
-        [6]: comments
-        [7]: comments
-        [8]: comments
-        [9]: Total invested
-     */
-    const state = new TrackerState(defaultTarget)
-    const lines = contents.replace("\\,", '').replace("\r", '').split("\n")
-    for (const line of lines) {
-        if (!line.trim()) {
-            continue
-        }
-        const columns = line.split(actionSeparator)
-        let isIgnored = columns[3].trim().length > 0;
-        if (isIgnored) {
+function applyBalanceBook(actions: string[], func: (a: number) => void) {
+    for (const action of actions) {
+        if (!action || action.trim().length <= 0) {
             continue;
         }
 
-        const portfolio = state.get(columns[0])
-        let targetBalance = columns[2].trim();
-        if (targetBalance.length > 0 && +(targetBalance) > 0) {
-            portfolio.updateTarget(+(targetBalance))
+        const actionValue = +(action.trim())
+        func(actionValue);
+    }
+}
+
+export function stateFromTsv(contents: string): TrackerState {
+    /*
+        [0]: AccountId
+        [5]: Bot state [enabled/disabled]
+        [8]: TP Level
+        [10]: TP Target
+        [13]: Refill Level
+        [15]: Refill target
+     */
+    const state = new TrackerState()
+    const lines = contents.replace("\\,", '').replace("\r", '').split("\n")
+
+    function createPortfolio(accountId: string, tracked: boolean, actionLines: string[], investmentLines: string[], bankLines: string[]) {
+        let portfolio = new PortfolioState(accountId, tracked)
+
+        // TODO: We need to calculate everything due to a google docs bug: https://issuetracker.google.com/issues/218993622
+        // const tpLevel = tracked ? extractNumber(actionLines[8]) : 0
+        // const tpTarget = tracked ? extractNumber(actionLines[10]) : 0
+        // const refillLevel = tracked ? extractNumber(actionLines[13]) : 0
+        // const refillTarget = tracked ? extractNumber(actionLines[15]) : 0
+
+        portfolio.tpPercent = extractNumber(investmentLines[8]) / 100.0
+        portfolio.tpStrategy = investmentLines[10]
+        portfolio.refillPercent = extractNumber(investmentLines[13]) / 100.0
+        portfolio.refillStrategy = investmentLines[15]
+        if (bankLines[20].trim()) {
+            portfolio.adjustTpStats(extractNumber(bankLines[20]))
+        }
+        if (bankLines[21].trim()) {
+            portfolio.adjustRefillStats(extractNumber(bankLines[21]))
         }
 
-        portfolio.resetInvestments(0);
-        const actions = columns.slice(10)
-        for (const action of actions) {
-            if (!action || action.trim().length <= 0) {
-                continue;
+        applyBalanceBook(actionLines.slice(27), (a) => portfolio.tpRefill(a));
+        applyBalanceBook(investmentLines.slice(27), (a) => portfolio.invest(a));
+        applyBalanceBook(bankLines.slice(27), (a) => portfolio.deposit(a));
+
+        return portfolio;
+    }
+
+    for (let i = 0; i < lines.length; i+=3) {
+
+        try {
+
+
+            const actionLines = lines[i].split(actionSeparator)
+
+            const accountId = actionLines[0]
+            if (!accountId.trim()) {
+                continue
             }
 
-            const trimmed = action.trim()
-
-            if (trimmed == 'x') {
-                portfolio.resetInvestments(0);
-                continue;
+            const tracked = actionLines[5].toLowerCase().startsWith('e')
+            if (!tracked) {
+                continue
             }
 
-            const actionValue = +(trimmed)
-            if (actionValue < 0) {
-                portfolio.takeProfit(-actionValue);
-            } else {
-                portfolio.refill(actionValue)
-            }
+
+
+            const investmentLines = lines[i+1].split(actionSeparator)
+            const bankLines = lines[i+2].split(actionSeparator)
+            let portfolio = createPortfolio(accountId, tracked, actionLines, investmentLines, bankLines);
+
+            state.put(accountId, portfolio)
+        } catch (e) {
+            state.addIncomplete(lines[i])
+            console.log(`Failed to parse line: ${lines[i]}`, e)
         }
-
-        console.log(columns[1])
-        describe(portfolio, 0.05, 0.05, 100)
     }
     return state;
+}
+
+const regex = /[+-]?\d+(\.\d+)?/g;
+function extractNumber(value: string): number {
+    return value.match(regex)!.map(function(v) { return parseFloat(v); })[0];
 }
 
 function toSymbolMap(filteredPortfolios: Portfolio[]): { [portfolioId: string]: string } {
@@ -75,39 +102,17 @@ export function toCsvHeader(state: TrackerState, filteredPortfolios: Portfolio[]
     const symbolMap = toSymbolMap(filteredPortfolios);
     const portfolioIds = filteredPortfolios.map(p => p.id)
 
-    const header = []
 
-    const accountLine = []
-    accountLine.push('AccountId')
-    for (const portfolioId of portfolioIds) {
-        accountLine.push(portfolioId)
-    }
-    header.push(accountLine.join(headerSeparator))
-
-    const symbolsLine = []
-    symbolsLine.push('Symbols')
-    for (const portfolioId of portfolioIds) {
-        symbolsLine.push(symbolMap[portfolioId])
-    }
-    header.push(symbolsLine.join(headerSeparator))
-
-
-    const targetValueLine = []
-    targetValueLine.push('Target value')
-    for (const portfolioId of portfolioIds) {
-        targetValueLine.push(state.get(portfolioId).targetValue)
-    }
-    header.push(targetValueLine.join(headerSeparator))
-
-    header.push("Ignore")
-
+    const line = []
+    line.push('HELP/COMMENTS')
     var i = 0
-    const portfolioLine = []
-    portfolioLine.push("Portfolio")
     for (const portfolioId of portfolioIds) {
-        portfolioLine.push(`${Math.floor((i++ / 4) + 1)}`)
+        line.push(portfolioId)
+        line.push(`Subaccount ${Math.floor((i++ / 4) + 1)}`)
+        line.push(symbolMap[portfolioId])
     }
-    header.push(portfolioLine.join(headerSeparator))
 
+    const header = []
+    header.push(line.join(headerSeparator))
     return header
 }

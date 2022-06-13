@@ -1,5 +1,5 @@
 import {ShrimpyApi} from "../shrimpy/api";
-import {globalTargetBalance, privateKey, publicKey} from "../util/vars";
+import {privateKey, publicKey} from "../util/vars";
 import {TrackerState} from "../state/tracker_state";
 import {toCsvHeader} from "../state/csv/state_converter";
 import {loadPortfolios} from "../shrimpy/portfolio";
@@ -17,7 +17,7 @@ const api = new ShrimpyApi(publicKey, privateKey);
             const filteredPortfolios = portfolios
                 .filter(p => p.symbols.length > 1)
 
-            const csvHeader = toCsvHeader(new TrackerState(globalTargetBalance), filteredPortfolios)
+            const csvHeader = toCsvHeader(new TrackerState(), filteredPortfolios)
 
             saveHeaderToFile(csvHeader)
         })
