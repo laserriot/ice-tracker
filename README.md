@@ -1,4 +1,4 @@
-Fork the repository privately (similar to https://gist.github.com/0xjac/85097472043b697ab57ba1b1c7530274) and set up these secrets in Settings -> Security -> Secrets:
+See instructions document for details.
 
 (required) ShrimpyApiKey
 -
